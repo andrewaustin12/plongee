@@ -14,8 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { NewCustomerDialog } from "@/components/NewCustomerDialog";
-import { CustomerDetailsDialog } from "@/components/CustomerDetailsDialog";
+import { NewCustomerDialog } from "@/app/dashboard/customers/_components/NewCustomerDialog";
+import { CustomerDetailsDialog } from "@/app/dashboard/customers/_components/CustomerDetailsDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { toast } from 'sonner';
 import { Id } from "@/convex/_generated/dataModel";
