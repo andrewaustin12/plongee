@@ -10,6 +10,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from 'sonner';
 import { Id } from "@/convex/_generated/dataModel";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface CustomerDetailsDialogProps {
   customer: {
@@ -161,29 +162,75 @@ export function CustomerDetailsDialog({ customer: initialCustomer }: CustomerDet
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h3 className="font-semibold">Personal Information</h3>
-          <p><span className="font-medium">Name:</span> {customer.firstName} {customer.lastName}</p>
-          <p><span className="font-medium">Email:</span> {customer.email}</p>
-          <p><span className="font-medium">Phone:</span> {customer.phone}</p>
-        </div>
-        <div>
-          <h3 className="font-semibold">Diving Information</h3>
-          <p><span className="font-medium">Certification Level:</span> {customer.certLevel}</p>
-          <p><span className="font-medium">Total Dives:</span> {customer.totalDives}</p>
-          <p><span className="font-medium">Last Dive Date:</span> {customer.lastDiveDate || 'N/A'}</p>
-        </div>
-        <div>
-          <h3 className="font-semibold">Emergency Contact</h3>
-          <p><span className="font-medium">Name:</span> {customer.emergencyContact.name}</p>
-          <p><span className="font-medium">Phone:</span> {customer.emergencyContact.phone}</p>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Personal Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-500">Name:</span>
+              <span>{customer.firstName} {customer.lastName}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-500">Email:</span>
+              <span>{customer.email}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-500">Phone:</span>
+              <span>{customer.phone}</span>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Diving Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-500">Certification Level:</span>
+              <span>{customer.certLevel}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-500">Total Dives:</span>
+              <span>{customer.totalDives}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-500">Last Dive Date:</span>
+              <span>{customer.lastDiveDate || 'N/A'}</span>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Emergency Contact</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-500">Name:</span>
+              <span>{customer.emergencyContact.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-500">Phone:</span>
+              <span>{customer.emergencyContact.phone}</span>
+            </div>
+          </CardContent>
+        </Card>
         {customer.diveInsurance && (
-          <div>
-            <h3 className="font-semibold">Dive Insurance</h3>
-            <p><span className="font-medium">Provider:</span> {customer.diveInsurance.provider}</p>
-            <p><span className="font-medium">Policy Number:</span> {customer.diveInsurance.policyNumber}</p>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Dive Insurance</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-500">Provider:</span>
+                <span>{customer.diveInsurance.provider}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-500">Policy Number:</span>
+                <span>{customer.diveInsurance.policyNumber}</span>
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     );
