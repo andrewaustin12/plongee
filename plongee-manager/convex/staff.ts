@@ -3,11 +3,13 @@ import { v } from "convex/values";
 
 export const add = mutation({
   args: {
-    name: v.string(),
+    firstName: v.string(),
+    lastName: v.string(),
     position: v.string(),
     email: v.string(),
     phone: v.string(),
     certLevel: v.string(),
+    isPermanent: v.boolean(),
   },
   handler: async (ctx, args) => {
     const newStaffId = await ctx.db.insert("staff", args);
@@ -32,11 +34,13 @@ export const remove = mutation({
 export const update = mutation({
   args: {
     id: v.id("staff"),
-    name: v.string(),
+    firstName: v.string(),
+    lastName: v.string(),
     position: v.string(),
     email: v.string(),
     phone: v.string(),
     certLevel: v.string(),
+    isPermanent: v.boolean(),
   },
   handler: async (ctx, args) => {
     const { id, ...updateFields } = args;

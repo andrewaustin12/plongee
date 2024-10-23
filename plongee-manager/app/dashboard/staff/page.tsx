@@ -30,6 +30,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 
 export default function StaffManagement() {
   const staffMembers = useQuery(api.staff.getAll);
@@ -48,7 +49,7 @@ export default function StaffManagement() {
   const filteredStaffMembers = useMemo(() => {
     if (!staffMembers) return [];
     return staffMembers.filter(staff => 
-      staff.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (staff.firstName + " " + staff.lastName).toLowerCase().includes(searchTerm.toLowerCase()) ||
       staff.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
       staff.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       staff.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -92,6 +93,7 @@ export default function StaffManagement() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Position</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
                   <TableHead>Certification Level</TableHead>
@@ -101,8 +103,13 @@ export default function StaffManagement() {
               <TableBody>
                 {filteredStaffMembers.map((staff) => (
                   <TableRow key={staff._id}>
-                    <TableCell>{staff.name}</TableCell>
+                    <TableCell>{staff.firstName} {staff.lastName}</TableCell>
                     <TableCell>{staff.position}</TableCell>
+                    <TableCell>
+                      <Badge variant={staff.isPermanent ? "default" : "secondary"}>
+                        {staff.isPermanent ? "Permanent" : "Freelance"}
+                      </Badge>
+                    </TableCell>
                     <TableCell>{staff.email}</TableCell>
                     <TableCell>{staff.phone}</TableCell>
                     <TableCell>{staff.certLevel}</TableCell>

@@ -4,36 +4,46 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from 'sonner';
+import { 
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { staffFormSchema, StaffFormValues } from './staffFormSchema';
 
 export function NewStaffDialog() {
   const [open, setOpen] = useState(false);
-  const [newStaff, setNewStaff] = useState({
-    name: "",
-    position: "",
-    email: "",
-    phone: "",
-    certLevel: ""
-  });
-
   const addStaffMember = useMutation(api.staff.add);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewStaff(prev => ({ ...prev, [name]: value }));
-  };
+  const form = useForm<StaffFormValues>({
+    resolver: zodResolver(staffFormSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      position: "",
+      email: "",
+      phone: "",
+      certLevel: "",
+      isPermanent: true,
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (values: StaffFormValues) => {
     try {
-      await addStaffMember(newStaff);
+      await addStaffMember(values);
       toast.success('New staff member added successfully!');
       setOpen(false);
-      setNewStaff({ name: "", position: "", email: "", phone: "", certLevel: "" });
-    } catch (error: unknown) {
+      form.reset();
+    } catch (error) {
       console.error('Error adding new staff member:', error);
       toast.error('Failed to add new staff member. Please try again.');
     }
@@ -48,29 +58,123 @@ export function NewStaffDialog() {
         <DialogHeader>
           <DialogTitle>Add New Staff Member</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" name="name" value={newStaff.name} onChange={handleInputChange} required />
-          </div>
-          <div>
-            <Label htmlFor="position">Position</Label>
-            <Input id="position" name="position" value={newStaff.position} onChange={handleInputChange} required />
-          </div>
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" value={newStaff.email} onChange={handleInputChange} required />
-          </div>
-          <div>
-            <Label htmlFor="phone">Phone</Label>
-            <Input id="phone" name="phone" value={newStaff.phone} onChange={handleInputChange} required />
-          </div>
-          <div>
-            <Label htmlFor="certLevel">Certification Level</Label>
-            <Input id="certLevel" name="certLevel" value={newStaff.certLevel} onChange={handleInputChange} required />
-          </div>
-          <Button type="submit">Add Staff Member</Button>
-        </form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="position"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Position</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="email" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="certLevel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Certification Level</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isPermanent"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Staff Type</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={(value) => field.onChange(value === "permanent")}
+                      defaultValue={field.value ? "permanent" : "freelance"}
+                      className="flex flex-col space-y-1"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="permanent" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Permanent
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="freelance" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Freelance
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit">Add Staff Member</Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

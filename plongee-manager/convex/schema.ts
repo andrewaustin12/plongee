@@ -3,11 +3,13 @@ import { v } from "convex/values";
 
 export default defineSchema({
   staff: defineTable({
-    name: v.string(),
+    firstName: v.string(),
+    lastName: v.string(),
     position: v.string(),
     email: v.string(),
     phone: v.string(),
     certLevel: v.string(),
+    isPermanent: v.boolean(),
   }),
   customers: defineTable({
     firstName: v.string(),
