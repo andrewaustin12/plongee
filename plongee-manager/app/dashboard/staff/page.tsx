@@ -14,11 +14,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { NewStaffDialog } from "@/app/dashboard/staff/_components/NewStaffDialog";
-import { EditStaffDialog } from "@/app/dashboard/staff/_components/EditStaffDialog";
+import { NewStaffDialog } from "./_components/NewStaffDialog";
+import { EditStaffDialog } from "./_components/EditStaffDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { toast } from 'sonner';
 import { Id } from "@/convex/_generated/dataModel";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function StaffManagement() {
   const staffMembers = useQuery(api.staff.getAll);
@@ -28,7 +39,6 @@ export default function StaffManagement() {
   const handleDelete = async (id: Id<"staff">) => {
     try {
       await deleteStaffMember({ id });
-      toast.success('Staff member deleted successfully!');
     } catch (error) {
       console.error('Error deleting staff member:', error);
       toast.error('Failed to delete staff member. Please try again.');
@@ -98,14 +108,32 @@ export default function StaffManagement() {
                     <TableCell>{staff.certLevel}</TableCell>
                     <TableCell>
                       <EditStaffDialog staff={staff} onEdit={handleEdit} />
-                      <Button 
-                        variant="destructive" 
-                        size="sm" 
-                        onClick={() => handleDelete(staff._id)}
-                        className="ml-2"
-                      >
-                        Delete
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            className="ml-2"
+                          >
+                            Delete
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete the staff member
+                              and remove their data from our servers.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(staff._id)}>
+                              Continue
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))}
