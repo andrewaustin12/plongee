@@ -12,11 +12,12 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const navItems = [
-    { href: '/dashboard', label: 'Overview' },
+    { href: '/dashboard', label: 'Dashboard' },
     { href: '/dashboard/customers', label: 'Customers' },
-    { href: '/dashboard/bookings', label: 'Bookings' },
+    { href: '/dashboard/courses', label: 'Courses' },
     { href: '/dashboard/equipment', label: 'Equipment' },
     { href: '/dashboard/staff', label: 'Staff' },
+    { href: '/dashboard/reports', label: 'Reports' },
     { href: '/dashboard/settings', label: 'Settings' },
   ];
 
