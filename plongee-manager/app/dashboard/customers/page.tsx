@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -10,8 +12,53 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { NewCustomerDialog } from "@/components/NewCustomerDialog";
+import { CustomerDetailsDialog } from "@/components/CustomerDetailsDialog";
+import { EmptyState } from "@/components/EmptyState";
+import { toast } from 'sonner';
+import { Id } from "@/convex/_generated/dataModel";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-export default function CustomersManagement() {
+export default function CustomerManagement() {
+  const customers = useQuery(api.customers.getAll);
+  const deleteCustomer = useMutation(api.customers.remove);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [customerToDelete, setCustomerToDelete] = useState<Id<"customers"> | null>(null);
+
+  const handleDeleteConfirm = async () => {
+    if (customerToDelete) {
+      try {
+        await deleteCustomer({ id: customerToDelete });
+        toast.success('Customer deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting customer:', error);
+        toast.error('Failed to delete customer. Please try again.');
+      } finally {
+        setCustomerToDelete(null);
+      }
+    }
+  };
+
+  const filteredCustomers = useMemo(() => {
+    if (!customers) return [];
+    return customers.filter(customer => 
+      customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.certLevel.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [customers, searchTerm]);
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-semibold">Customer Management</h1>
@@ -25,43 +72,68 @@ export default function CustomersManagement() {
             <Input 
               className="max-w-sm" 
               placeholder="Search customers..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Button>Add New Customer</Button>
+            <NewCustomerDialog />
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Certification Level</TableHead>
-                <TableHead>Last Dive</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[
-                { name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', certLevel: 'Advanced Open Water', lastDive: '2023-05-15' },
-                { name: 'Jane Smith', email: 'jane@example.com', phone: '098-765-4321', certLevel: 'Rescue Diver', lastDive: '2023-06-01' },
-                { name: 'Bob Johnson', email: 'bob@example.com', phone: '555-555-5555', certLevel: 'Open Water', lastDive: '2023-04-30' },
-                { name: 'Alice Brown', email: 'alice@example.com', phone: '111-222-3333', certLevel: 'Divemaster', lastDive: '2023-05-20' },
-              ].map((customer, index) => (
-                <TableRow key={index}>
-                  <TableCell>{customer.name}</TableCell>
-                  <TableCell>{customer.email}</TableCell>
-                  <TableCell>{customer.phone}</TableCell>
-                  <TableCell>{customer.certLevel}</TableCell>
-                  <TableCell>{customer.lastDive}</TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm" className="mr-2">Edit</Button>
-                    <Button variant="destructive" size="sm">Delete</Button>
-                  </TableCell>
+          {customers === undefined ? (
+            <EmptyState message="Loading customers..." />
+          ) : customers.length === 0 ? (
+            <EmptyState message="No customers found. Add a new customer to get started." />
+          ) : filteredCustomers.length === 0 ? (
+            <EmptyState message="No customers match your search." />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Certification Level</TableHead>
+                  <TableHead>Total Dives</TableHead>
+                  <TableHead>Last Dive Date</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredCustomers.map((customer) => (
+                  <TableRow key={customer._id}>
+                    <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
+                    <TableCell>{customer.certLevel}</TableCell>
+                    <TableCell>{customer.totalDives}</TableCell>
+                    <TableCell>{customer.lastDiveDate || 'N/A'}</TableCell>
+                    <TableCell>
+                      <CustomerDetailsDialog customer={customer} />
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={() => setCustomerToDelete(customer._id)}
+                        className="ml-2"
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!customerToDelete} onOpenChange={() => setCustomerToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this customer?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the customer&apos;s data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
