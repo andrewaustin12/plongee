@@ -17,6 +17,7 @@ export default function DashboardLayout({
     { href: '/dashboard/bookings', label: 'Bookings' },
     { href: '/dashboard/equipment', label: 'Equipment' },
     { href: '/dashboard/staff', label: 'Staff' },
+    { href: '/dashboard/settings', label: 'Settings' },
   ];
 
   return (
