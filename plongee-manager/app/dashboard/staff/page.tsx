@@ -69,7 +69,7 @@ export default function StaffManagement() {
       
       <Card>
         <CardHeader>
-          <CardTitle>Staff List</CardTitle>
+          <CardTitle>Staff Members</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between items-center mb-4">
