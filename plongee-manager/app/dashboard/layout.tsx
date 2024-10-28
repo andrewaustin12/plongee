@@ -1,60 +1,30 @@
 'use client'
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { Button } from "@/components/ui/button";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from '@/components/ui/app-sidebar';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const pathname = usePathname();
-
-  const navItems = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/dashboard/customers', label: 'Customers' },
-    { href: '/dashboard/courses', label: 'Courses' },
-    { href: '/dashboard/equipment', label: 'Equipment' },
-    { href: '/dashboard/staff', label: 'Staff' },
-    { href: '/dashboard/reports', label: 'Reports' },
-    { href: '/dashboard/settings', label: 'Settings' },
-  ];
-
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-100 p-6">
-        <div className="text-2xl font-bold text-primary mb-6">DiveManager Pro</div>
-        <nav>
-          <ul className="space-y-2">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <Link 
-                  href={item.href}
-                  className={`block py-2 px-4 rounded transition-colors ${
-                    pathname === item.href
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-gray-200'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-end mb-6">
-            <Button variant="outline">Logout</Button>
-          </div>
-          {children}
+    <SidebarProvider>
+      <div className="flex h-screen w-full overflow-hidden bg-background">
+        <AppSidebar />
+        <div className="flex-1 overflow-auto">
+          <main className="h-full w-full">
+            <div className="p-6">
+              <div className="flex justify-between mb-6">
+                <SidebarTrigger />
+                <Button variant="outline">Logout</Button>
+              </div>
+              {children}
+            </div>
+          </main>
         </div>
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 }

@@ -8,7 +8,7 @@ import { EquipmentSalesChart } from "./_components/EquipmentSalesChart"
 
 export default function ReportsPage() {
   return (
-    <div className="container mx-auto py-10">
+    <div className="py-10">
       <h1 className="text-3xl font-bold mb-6">Freediving Dive Shop Reports</h1>
       
       <Tabs defaultValue="overview" className="space-y-4">
