@@ -29,12 +29,32 @@ export default defineSchema({
     })),
   }),
   equipment: defineTable({
-    name: v.string(),
-    type: v.string(),
-    status: v.string(),
+    type: v.union(
+      v.literal("monofin"),
+      v.literal("bifin"),
+      v.literal("mask"), 
+      v.literal("snorkel"),
+      v.literal("wetsuit"),
+      v.literal("weight-belt"),
+      v.literal("lanyard"),
+      v.literal("buoy"),
+      v.literal("rope")
+    ),
+    status: v.union(
+      v.literal("available"),
+      v.literal("in-use"),
+      v.literal("maintenance")
+    ),
+    size: v.string(),
     lastMaintenance: v.string(),
     serialNumber: v.string(),
     assignedTo: v.optional(v.string()),
+    material: v.optional(v.string()),
+    length: v.optional(v.number()), // in meters, for ropes
+    weightCapacity: v.optional(v.number()), // in kg, for weight belts
+    thickness: v.optional(v.number()), // in mm, for wetsuits
+    notes: v.optional(v.string()),
+    
   }),
   // ... other tables in your schema
 });

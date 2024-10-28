@@ -36,7 +36,8 @@ export default function DashboardLayout({
               </BreadcrumbItem>
               {pathSegments.slice(1).map((segment, index) => (
                 <BreadcrumbItem key={segment}>
-                  <BreadcrumbSeparator />
+                  {/* Move separator outside of the link structure */}
+                  {index > 0 && <BreadcrumbSeparator />}
                   {index === pathSegments.length - 2 ? (
                     <BreadcrumbPage>
                       {segment.split('-').map(word => 

@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Id } from "@/convex/_generated/dataModel";
+import { Id, Doc } from "@/convex/_generated/dataModel";
 import { Pagination } from "@/components/ui/pagination";
 import {
   AlertDialog,
@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AddEquipmentDialog } from './_components/AddEquipmentDialog';
 import { EmptyState } from '@/components/EmptyState';
+import { EditEquipmentDialog } from './_components/EditEquipmentDialog';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -45,10 +46,11 @@ export default function EquipmentManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [equipmentToDelete, setEquipmentToDelete] = useState<Id<"equipment"> | null>(null);
+  const [editingEquipment, setEditingEquipment] = useState<Doc<"equipment"> | null>(null);
 
   const filteredEquipment = equipment?.filter(item => 
-    (item.name.toLowerCase().includes(search.toLowerCase()) ||
-     item.serialNumber.toLowerCase().includes(search.toLowerCase())) &&
+    (
+      item.serialNumber.toLowerCase().includes(search.toLowerCase())) &&
     (typeFilter === 'all' || item.type === typeFilter) &&
     (statusFilter === 'all' || item.status === statusFilter)
   ) || [];
@@ -108,9 +110,14 @@ export default function EquipmentManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="scuba">Scuba</SelectItem>
+                <SelectItem value="fins">Fins</SelectItem>
+                <SelectItem value="mask">Mask</SelectItem>
                 <SelectItem value="snorkel">Snorkel</SelectItem>
-                {/* Add more equipment types as needed */}
+                <SelectItem value="wetsuit">Wetsuit</SelectItem>
+                <SelectItem value="weight">Weight</SelectItem>
+                <SelectItem value="lanyard">Lanyard</SelectItem>
+                <SelectItem value="buoy">Buoy</SelectItem>
+                <SelectItem value="rope">Rope</SelectItem>
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -129,9 +136,9 @@ export default function EquipmentManagement() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Serial Number</TableHead>
+                <TableHead>Size</TableHead>
                 <TableHead>Last Service</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
@@ -141,13 +148,20 @@ export default function EquipmentManagement() {
               {paginatedEquipment.length > 0 ? (
                 paginatedEquipment.map((item) => (
                   <TableRow key={item._id}>
-                    <TableCell>{item.name}</TableCell>
                     <TableCell>{item.type}</TableCell>
                     <TableCell>{item.serialNumber}</TableCell>
+                    <TableCell>{item.size || '-'}</TableCell>
                     <TableCell>{new Date(item.lastMaintenance).toLocaleDateString()}</TableCell>
                     <TableCell>{item.status}</TableCell>
                     <TableCell>
-                      <Button variant="outline" size="sm" className="mr-2">Edit</Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mr-2"
+                        onClick={() => setEditingEquipment(item)}
+                      >
+                        Edit
+                      </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button 
@@ -203,6 +217,17 @@ export default function EquipmentManagement() {
         isOpen={isAddDialogOpen} 
         onClose={() => setIsAddDialogOpen(false)} 
       />
+
+      {editingEquipment && (
+        <EditEquipmentDialog
+          isOpen={!!editingEquipment}
+          onClose={() => setEditingEquipment(null)}
+          equipment={{
+            ...editingEquipment,
+            lastMaintenance: new Date(editingEquipment.lastMaintenance).getTime()
+          }}
+        />
+      )}
     </div>
   );
 }
