@@ -28,11 +28,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { AddEquipmentDialog } from './_components/AddEquipmentDialog';
 import { EmptyState } from '@/components/EmptyState';
 import { EditEquipmentDialog } from './_components/EditEquipmentDialog';
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -50,7 +57,9 @@ export default function EquipmentManagement() {
 
   const filteredEquipment = equipment?.filter(item => 
     (
-      item.serialNumber.toLowerCase().includes(search.toLowerCase())) &&
+      item.type.toLowerCase().includes(search.toLowerCase()) ||
+      item.serialNumber.toLowerCase().includes(search.toLowerCase())
+    ) &&
     (typeFilter === 'all' || item.type === typeFilter) &&
     (statusFilter === 'all' || item.status === statusFilter)
   ) || [];
@@ -97,7 +106,7 @@ export default function EquipmentManagement() {
           <div className="flex space-x-4 mb-4">
             <div className="flex-1 relative">
               <Input
-                placeholder="Search by name or serial number"
+                placeholder="Search by type or serial number"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10"
@@ -137,10 +146,9 @@ export default function EquipmentManagement() {
             <TableHeader>
               <TableRow>
                 <TableHead>Type</TableHead>
-                <TableHead>Serial Number</TableHead>
                 <TableHead>Size</TableHead>
-                <TableHead>Last Service</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Notes</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -149,29 +157,40 @@ export default function EquipmentManagement() {
                 paginatedEquipment.map((item) => (
                   <TableRow key={item._id}>
                     <TableCell>{item.type}</TableCell>
-                    <TableCell>{item.serialNumber}</TableCell>
                     <TableCell>{item.size || '-'}</TableCell>
-                    <TableCell>{new Date(item.lastMaintenance).toLocaleDateString()}</TableCell>
-                    <TableCell>{item.status}</TableCell>
                     <TableCell>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="mr-2"
-                        onClick={() => setEditingEquipment(item)}
-                      >
-                        Edit
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button 
-                            variant="destructive" 
-                            size="sm"
+                      <Badge variant={
+                        item.status === 'available' 
+                          ? 'default'
+                          : item.status === 'in-use'
+                          ? 'secondary'
+                          : 'destructive'
+                      }>
+                        {item.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{item.notes || '-'}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <EllipsisVerticalIcon className="h-5 w-5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setEditingEquipment(item)}>
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive"
                             onClick={() => handleDeleteClick(item._id)}
                           >
                             Delete
-                          </Button>
-                        </AlertDialogTrigger>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <AlertDialog open={equipmentToDelete === item._id}>
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -181,7 +200,7 @@ export default function EquipmentManagement() {
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel onClick={() => setEquipmentToDelete(null)}>Cancel</AlertDialogCancel>
                             <AlertDialogAction onClick={handleDeleteConfirm}>
                               Delete
                             </AlertDialogAction>
@@ -224,7 +243,8 @@ export default function EquipmentManagement() {
           onClose={() => setEditingEquipment(null)}
           equipment={{
             ...editingEquipment,
-            lastMaintenance: new Date(editingEquipment.lastMaintenance).getTime()
+            lastServiceDate: editingEquipment.lastMaintenance || '',
+            thickness: editingEquipment.thickness?.toString() || ''
           }}
         />
       )}

@@ -66,7 +66,7 @@ export const add = mutation({
       v.literal("rope")
     ),
     serialNumber: v.string(),
-    lastServiceDate: v.string(),
+    lastServiceDate: v.optional(v.string()),
     status: v.union(
       v.literal("available"),
       v.literal("in-use"),
@@ -80,9 +80,6 @@ export const add = mutation({
       oneSize,
       noSize
     ),
-    material: v.optional(v.string()),
-    length: v.optional(v.number()),
-    weightCapacity: v.optional(v.number()),
     thickness: v.optional(v.number()),
     notes: v.optional(v.string()),
   },
@@ -152,16 +149,13 @@ export const edit = mutation({
       v.literal("rope")
     )),
     serialNumber: v.optional(v.string()),
-    lastServiceDate: v.optional(v.string()),
+    lastMaintenance: v.optional(v.string()), // Changed from lastServiceDate
     status: v.optional(v.union(
       v.literal("available"),
       v.literal("in-use"),
       v.literal("maintenance")
     )),
     size: v.optional(v.string()),
-    material: v.optional(v.string()),
-    length: v.optional(v.number()),
-    weightCapacity: v.optional(v.number()),
     thickness: v.optional(v.number()),
     notes: v.optional(v.string()),
   },
@@ -173,43 +167,5 @@ export const edit = mutation({
     
     const { id, ...updates } = args;
     await ctx.db.patch(id, updates);
-  },
-});
-
-// Add this mutation
-export const update = mutation({
-  args: {
-    id: v.id("equipment"),
-    type: v.union(
-      v.literal("monofin"),
-      v.literal("bifin"),
-      v.literal("mask"),
-      v.literal("snorkel"),
-      v.literal("wetsuit"),
-      v.literal("weight-belt"),
-      v.literal("lanyard"),
-      v.literal("buoy"),
-      v.literal("rope")
-    ),
-    serialNumber: v.string(),
-    status: v.union(
-      v.literal("available"),
-      v.literal("in-use"),
-      v.literal("maintenance")
-    ),
-    size: v.union(finSizes, wetsuitSizes, maskSizes, oneSize, noSize),
-    lastServiceDate: v.string(),
-    material: v.optional(v.string()),
-    length: v.optional(v.number()),
-    weightCapacity: v.optional(v.number()),
-    thickness: v.optional(v.number()),
-    notes: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const { id, lastServiceDate, ...updates } = args;
-    await ctx.db.patch(id, {
-      ...updates,
-      lastMaintenance: lastServiceDate,
-    });
   },
 });

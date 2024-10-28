@@ -46,6 +46,7 @@ export function AddEquipmentDialog({ isOpen, onClose }: { isOpen: boolean; onClo
         status: newEquipment.status as typeof statusTypes[number],
         lastServiceDate: newEquipment.lastMaintenance,
         size: newEquipment.size as typeof finSizeOptions[number],
+        notes: newEquipment.notes,  // Add this line
       };
       await addEquipment(equipmentData);
       toast.success('New equipment added successfully!');

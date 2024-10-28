@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Id } from "@/convex/_generated/dataModel";
+import { Equipment } from '../types';
 
 const equipmentTypes = ["monofin", "bifin", "mask", "snorkel", "wetsuit", "weight-belt", "lanyard", "buoy", "rope"] as const;
 const statusTypes = ["available", "in-use", "maintenance"] as const;
@@ -22,36 +22,44 @@ const finSizeOptions = [
 ] as const;
 const maskSizes = ["XS", "S", "M", "L", "XL"];
 
-type Equipment = {
-  _id: Id<"equipment">;
-  type: typeof equipmentTypes[number];
-  serialNumber: string;
-  lastServiceDate: string;
-  status: typeof statusTypes[number];
-  size: string;
-  material?: string;
-  length?: string;
-  weightCapacity?: string;
-  thickness?: string;
-  notes?: string;
-};
-
-type EditEquipmentDialogProps = {
+interface EditEquipmentDialogProps {
   isOpen: boolean;
   onClose: () => void;
   equipment: Equipment;
-};
+}
 
 export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmentDialogProps) {
-  const [formData, setFormData] = useState(equipment);
-  const updateEquipment = useMutation(api.equipment.update);
+  const [editedEquipment, setEditedEquipment] = useState(equipment);
+
+  const updateEquipment = useMutation(api.equipment.edit);
 
   useEffect(() => {
-    setFormData(equipment);
+    setEditedEquipment(equipment);
   }, [equipment]);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateEquipment({
+        id: equipment._id,
+        type: editedEquipment.type as typeof equipmentTypes[number],
+        serialNumber: editedEquipment.serialNumber,
+        status: editedEquipment.status as typeof statusTypes[number],
+        lastMaintenance: editedEquipment.lastServiceDate,  // Changed to match the mutation schema
+        size: editedEquipment.size as typeof finSizeOptions[number],
+        thickness: editedEquipment.thickness ? Number(editedEquipment.thickness) : undefined,
+        notes: editedEquipment.notes,
+      });
+      toast.success('Equipment updated successfully!');
+      onClose();
+    } catch (error) {
+      console.error('Error updating equipment:', error);
+      toast.error('Failed to update equipment. Please try again.');
+    }
+  };
+
   const getSizeOptions = () => {
-    switch (formData.type) {
+    switch (editedEquipment.type) {
       case 'monofin':
       case 'bifin':
         return finSizeOptions;
@@ -68,30 +76,6 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await updateEquipment({
-        id: equipment._id,
-        type: formData.type,
-        serialNumber: formData.serialNumber,
-        status: formData.status,
-        lastServiceDate: formData.lastServiceDate,
-        size: formData.size,
-        material: formData.material || undefined,
-        length: formData.length ? Number(formData.length) : undefined,
-        weightCapacity: formData.weightCapacity ? Number(formData.weightCapacity) : undefined,
-        thickness: formData.thickness ? Number(formData.thickness) : undefined,
-        notes: formData.notes || undefined,
-      });
-      toast.success('Equipment updated successfully!');
-      onClose();
-    } catch (error) {
-      console.error('Error updating equipment:', error);
-      toast.error('Failed to update equipment. Please try again.');
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -101,8 +85,8 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
         <form onSubmit={handleSubmit} className="space-y-4">
           <Select
             required
-            value={formData.type}
-            onValueChange={(value) => setFormData({ ...formData, type: value as typeof equipmentTypes[number] })}
+            value={editedEquipment.type}
+            onValueChange={(value) => setEditedEquipment({ ...editedEquipment, type: value })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select type" />
@@ -117,8 +101,8 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
           </Select>
           <Select
             required
-            value={formData.status}
-            onValueChange={(value) => setFormData({ ...formData, status: value as typeof statusTypes[number] })}
+            value={editedEquipment.status}
+            onValueChange={(value) => setEditedEquipment({ ...editedEquipment, status: value })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select status" />
@@ -133,8 +117,8 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
           </Select>
           <Input
             placeholder="Serial Number"
-            value={formData.serialNumber}
-            onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
+            value={editedEquipment.serialNumber}
+            onChange={(e) => setEditedEquipment({ ...editedEquipment, serialNumber: e.target.value })}
             required
           />
           <div className="relative">
@@ -144,15 +128,15 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
             <Input
               type="date"
               className="pl-40"
-              value={formData.lastServiceDate}
-              onChange={(e) => setFormData({ ...formData, lastServiceDate: e.target.value })}
+              value={editedEquipment.lastServiceDate}
+              onChange={(e) => setEditedEquipment({ ...editedEquipment, lastServiceDate: e.target.value })}
               required
             />
           </div>
           <Select
             required
-            value={formData.size}
-            onValueChange={(value) => setFormData({ ...formData, size: value })}
+            value={editedEquipment.size}
+            onValueChange={(value) => setEditedEquipment({ ...editedEquipment, size: value })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select size" />
@@ -167,36 +151,33 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
           </Select>
           <Input
             placeholder="Material (optional)"
-            value={formData.material || ''}
-            onChange={(e) => setFormData({ ...formData, material: e.target.value })}
+            value={editedEquipment.material || ''}
+            onChange={(e) => setEditedEquipment({ ...editedEquipment, material: e.target.value })}
           />
           <Input
             type="number"
             placeholder="Length in meters (optional)"
-            value={formData.length || ''}
-            onChange={(e) => setFormData({ ...formData, length: e.target.value })}
+            value={editedEquipment.length || ''}
+            onChange={(e) => setEditedEquipment({ ...editedEquipment, length: e.target.value })}
           />
           <Input
             type="number"
             placeholder="Weight Capacity in kg (optional)"
-            value={formData.weightCapacity || ''}
-            onChange={(e) => setFormData({ ...formData, weightCapacity: e.target.value })}
+            value={editedEquipment.weightCapacity || ''}
+            onChange={(e) => setEditedEquipment({ ...editedEquipment, weightCapacity: e.target.value })}
           />
           <Input
             type="number"
             placeholder="Thickness in mm (optional)"
-            value={formData.thickness || ''}
-            onChange={(e) => setFormData({ ...formData, thickness: e.target.value })}
+            value={editedEquipment.thickness || ''}
+            onChange={(e) => setEditedEquipment({ ...editedEquipment, thickness: e.target.value })}
           />
           <Input
             placeholder="Notes (optional)"
-            value={formData.notes || ''}
-            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            value={editedEquipment.notes || ''}
+            onChange={(e) => setEditedEquipment({ ...editedEquipment, notes: e.target.value })}
           />
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit">Save Changes</Button>
-          </div>
+          <Button type="submit">Update Equipment</Button>
         </form>
       </DialogContent>
     </Dialog>

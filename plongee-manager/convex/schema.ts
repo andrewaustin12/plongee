@@ -46,12 +46,9 @@ export default defineSchema({
       v.literal("maintenance")
     ),
     size: v.string(),
-    lastMaintenance: v.string(),
+    lastMaintenance: v.optional(v.string()),
     serialNumber: v.string(),
     assignedTo: v.optional(v.string()),
-    material: v.optional(v.string()),
-    length: v.optional(v.number()), // in meters, for ropes
-    weightCapacity: v.optional(v.number()), // in kg, for weight belts
     thickness: v.optional(v.number()), // in mm, for wetsuits
     notes: v.optional(v.string()),
     
