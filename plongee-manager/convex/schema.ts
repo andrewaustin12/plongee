@@ -53,5 +53,12 @@ export default defineSchema({
     notes: v.optional(v.string()),
     
   }),
+  courses: defineTable({
+    title: v.string(),
+    start: v.number(),
+    end: v.number(),
+    instructor: v.string(),
+    participants: v.array(v.string()),
+  }),
   // ... other tables in your schema
 });

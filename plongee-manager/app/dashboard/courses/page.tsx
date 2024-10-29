@@ -14,38 +14,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import "react-datepicker/dist/react-datepicker.css";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+
+import { AddCourseDialog } from './_components/add-course-dialog'
 
 // Setup the localizer for react-big-calendar
 const localizer = momentLocalizer(moment);
 
 export default function CoursesManagement() {
-  // Sample courses data
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: 'Open Water Course',
-      start: new Date(2023, 5, 1, 9, 0),
-      end: new Date(2023, 5, 1, 17, 0),
-      instructor: '',
-      participants: [],
-    },
-    {
-      id: 2,
-      title: 'Advanced Open Water Course',
-      start: new Date(2023, 5, 3, 10, 0),
-      end: new Date(2023, 5, 3, 16, 0),
-      instructor: '',
-      participants: [],
-    },
-    // Add more sample courses as needed
-  ]);
+  // Replace the static courses state with the query
+  const courses = useQuery(api.courses.getCourses);
+  
+  // Transform Convex data for the calendar
+  const calendarEvents = courses?.map(course => ({
+    id: course._id,
+    title: course.title,
+    start: new Date(course.start),
+    end: new Date(course.end),
+    instructor: course.instructor,
+    participants: course.participants,
+  })) ?? [];
 
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isNewCourseDialogOpen, setIsNewCourseDialogOpen] = useState(false);
 
   const handleSelectEvent = (event) => {
     setSelectedCourse(event);
@@ -68,12 +66,15 @@ export default function CoursesManagement() {
       <div className="grid grid-cols-3 gap-6">
         <Card className="col-span-2">
           <CardHeader>
-            <CardTitle>Booking Calendar</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle>Booking Calendar</CardTitle>
+              <Button onClick={() => setIsNewCourseDialogOpen(true)}>Add Course</Button>
+            </div>
           </CardHeader>
           <CardContent>
             <Calendar
               localizer={localizer}
-              events={courses}
+              events={calendarEvents}
               startAccessor="start"
               endAccessor="end"
               style={{ height: 500 }}
@@ -120,7 +121,7 @@ export default function CoursesManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {courses.map((course) => (
+              {calendarEvents.map((course) => (
                 <TableRow key={course.id}>
                   <TableCell>{course.title}</TableCell>
                   <TableCell>{moment(course.start).format('MMMM D, YYYY')}</TableCell>
@@ -178,6 +179,11 @@ export default function CoursesManagement() {
           )}
         </DialogContent>
       </Dialog>
+
+      <AddCourseDialog 
+        open={isNewCourseDialogOpen} 
+        onOpenChange={setIsNewCourseDialogOpen}
+      />
     </div>
   );
 }

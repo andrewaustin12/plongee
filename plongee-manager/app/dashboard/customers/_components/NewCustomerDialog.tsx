@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from 'sonner';
+import { CertificationSelect } from "@/components/certification-select";
 
 export function NewCustomerDialog() {
   const [open, setOpen] = useState(false);
@@ -127,7 +128,10 @@ export function NewCustomerDialog() {
               </div>
               <div>
                 <Label htmlFor="certLevel">Certification Level</Label>
-                <Input id="certLevel" name="certLevel" value={newCustomer.certLevel} onChange={handleInputChange} required />
+                <CertificationSelect
+                  value={newCustomer.certLevel}
+                  onValueChange={(value) => setNewCustomer(prev => ({ ...prev, certLevel: value }))}
+                />
               </div>
               <div>
                 <Label htmlFor="totalDives">Total Number of Dives</Label>
