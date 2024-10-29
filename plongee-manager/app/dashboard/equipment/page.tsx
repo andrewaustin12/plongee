@@ -119,7 +119,8 @@ export default function EquipmentManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="fins">Fins</SelectItem>
+                <SelectItem value="monofin">Monofin</SelectItem>
+                <SelectItem value="bifin">Bifin</SelectItem>
                 <SelectItem value="mask">Mask</SelectItem>
                 <SelectItem value="snorkel">Snorkel</SelectItem>
                 <SelectItem value="wetsuit">Wetsuit</SelectItem>
