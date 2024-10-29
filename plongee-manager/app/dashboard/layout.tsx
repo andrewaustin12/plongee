@@ -34,24 +34,26 @@ export default function DashboardLayout({
               <BreadcrumbItem>
                 <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
+              {pathSegments.length > 1 && <BreadcrumbSeparator />}
               {pathSegments.slice(1).map((segment, index) => (
-                <BreadcrumbItem key={segment}>
-                  {/* Move separator outside of the link structure */}
-                  {index > 0 && <BreadcrumbSeparator />}
-                  {index === pathSegments.length - 2 ? (
-                    <BreadcrumbPage>
-                      {segment.split('-').map(word => 
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                      ).join(' ')}
-                    </BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink href={`/dashboard/${segment}`}>
-                      {segment.split('-').map(word => 
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                      ).join(' ')}
-                    </BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
+                <>
+                  <BreadcrumbItem key={segment}>
+                    {index === pathSegments.length - 2 ? (
+                      <BreadcrumbPage>
+                        {segment.split('-').map(word => 
+                          word.charAt(0).toUpperCase() + word.slice(1)
+                        ).join(' ')}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href={`/dashboard/${segment}`}>
+                        {segment.split('-').map(word => 
+                          word.charAt(0).toUpperCase() + word.slice(1)
+                        ).join(' ')}
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {index < pathSegments.length - 2 && <BreadcrumbSeparator />}
+                </>
               ))}
             </BreadcrumbList>
           </Breadcrumb>
