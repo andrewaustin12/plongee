@@ -53,7 +53,7 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
         size: editedEquipment.size as typeof finSizeOptions[number],
         thickness: editedEquipment.thickness ? Number(editedEquipment.thickness) : undefined,
         notes: editedEquipment.notes,
-        assignedTo: editedEquipment.assignedTo,
+        assignedTo: editedEquipment.assignedTo || null,
       });
       toast.success('Equipment updated successfully!');
       onClose();
@@ -178,11 +178,14 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
             onChange={(e) => setEditedEquipment({ ...editedEquipment, thickness: e.target.value })}
           />
           <Select
-            value={editedEquipment.assignedTo || "unassigned"}
-            onValueChange={(value) => setEditedEquipment({ 
-              ...editedEquipment, 
-              assignedTo: value === "unassigned" ? undefined : value as Id<"staff">
-            })}
+            value={editedEquipment.assignedTo ? editedEquipment.assignedTo.toString() : "unassigned"}
+            onValueChange={(value) => {
+              console.log('Selected value:', value);
+              setEditedEquipment({ 
+                ...editedEquipment, 
+                assignedTo: value === "unassigned" ? undefined : value as Id<"staff">
+              });
+            }}
           >
             <SelectTrigger>
               <SelectValue placeholder="Assign to staff member" />

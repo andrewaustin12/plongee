@@ -164,7 +164,7 @@ export const edit = mutation({
       v.literal("in-use"),
       v.literal("maintenance")
     )),
-    assignedTo: v.optional(v.id("staff")),
+    assignedTo: v.union(v.id("staff"), v.null()),
     size: v.optional(v.string()),
     thickness: v.optional(v.number()),
     notes: v.optional(v.string()),
@@ -183,7 +183,10 @@ export const edit = mutation({
       }
     }
 
-    const { id, ...updates } = args;
-    await ctx.db.patch(id, updates);
+    const { id, assignedTo, ...otherUpdates } = args;
+    await ctx.db.patch(id, {
+      ...otherUpdates,
+      assignedTo: assignedTo === null ? undefined : assignedTo,
+    });
   },
 });
