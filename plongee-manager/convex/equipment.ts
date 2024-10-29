@@ -80,6 +80,7 @@ export const add = mutation({
       oneSize,
       noSize
     ),
+    assignedTo: v.optional(v.id("staff")),
     thickness: v.optional(v.number()),
     notes: v.optional(v.string()),
   },
@@ -114,6 +115,14 @@ export const add = mutation({
       size !== "one-size"
     ) {
       throw new Error("This equipment type should use 'one-size'");
+    }
+
+    // Validate staff member exists if assignedTo is provided
+    if (args.assignedTo) {
+      const staff = await ctx.db.get(args.assignedTo);
+      if (!staff) {
+        throw new Error("Invalid staff member ID");
+      }
     }
 
     const { lastServiceDate, ...equipmentData } = args;
@@ -155,6 +164,7 @@ export const edit = mutation({
       v.literal("in-use"),
       v.literal("maintenance")
     )),
+    assignedTo: v.optional(v.id("staff")),
     size: v.optional(v.string()),
     thickness: v.optional(v.number()),
     notes: v.optional(v.string()),
@@ -165,6 +175,14 @@ export const edit = mutation({
       // Similar validation logic as in add mutation
     }
     
+    // Validate staff member exists if assignedTo is being updated
+    if (args.assignedTo) {
+      const staff = await ctx.db.get(args.assignedTo);
+      if (!staff) {
+        throw new Error("Invalid staff member ID");
+      }
+    }
+
     const { id, ...updates } = args;
     await ctx.db.patch(id, updates);
   },

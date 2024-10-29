@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Equipment } from '../types';
+import { Id } from "@/convex/_generated/dataModel";
 
 const equipmentTypes = ["monofin", "bifin", "mask", "snorkel", "wetsuit", "weight-belt", "lanyard", "buoy", "rope"] as const;
 const statusTypes = ["available", "in-use", "maintenance"] as const;
@@ -33,6 +34,9 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
 
   const updateEquipment = useMutation(api.equipment.edit);
 
+  // Fetch staff members
+  const staffMembers = useQuery(api.staff.list) || [];
+
   useEffect(() => {
     setEditedEquipment(equipment);
   }, [equipment]);
@@ -45,10 +49,11 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
         type: editedEquipment.type as typeof equipmentTypes[number],
         serialNumber: editedEquipment.serialNumber,
         status: editedEquipment.status as typeof statusTypes[number],
-        lastMaintenance: editedEquipment.lastServiceDate,  // Changed to match the mutation schema
+        lastMaintenance: editedEquipment.lastServiceDate,
         size: editedEquipment.size as typeof finSizeOptions[number],
         thickness: editedEquipment.thickness ? Number(editedEquipment.thickness) : undefined,
         notes: editedEquipment.notes,
+        assignedTo: editedEquipment.assignedTo,
       });
       toast.success('Equipment updated successfully!');
       onClose();
@@ -172,6 +177,25 @@ export function EditEquipmentDialog({ isOpen, onClose, equipment }: EditEquipmen
             value={editedEquipment.thickness || ''}
             onChange={(e) => setEditedEquipment({ ...editedEquipment, thickness: e.target.value })}
           />
+          <Select
+            value={editedEquipment.assignedTo || "unassigned"}
+            onValueChange={(value) => setEditedEquipment({ 
+              ...editedEquipment, 
+              assignedTo: value === "unassigned" ? undefined : value as Id<"staff">
+            })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Assign to staff member" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="unassigned">Not Assigned</SelectItem>
+              {staffMembers.map((staff) => (
+                <SelectItem key={staff._id} value={staff._id}>
+                  {staff.firstName} {staff.lastName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Input
             placeholder="Notes (optional)"
             value={editedEquipment.notes || ''}

@@ -48,7 +48,7 @@ export default defineSchema({
     size: v.string(),
     lastMaintenance: v.optional(v.string()),
     serialNumber: v.string(),
-    assignedTo: v.optional(v.string()),
+    assignedTo: v.optional(v.id("staff")),
     thickness: v.optional(v.number()), // in mm, for wetsuits
     notes: v.optional(v.string()),
     

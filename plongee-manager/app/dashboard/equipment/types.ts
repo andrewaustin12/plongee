@@ -12,4 +12,5 @@ export interface Equipment {
   weightCapacity?: string;
   thickness?: string;
   notes?: string;
+  assignedTo?: Id<"staff">;
 }

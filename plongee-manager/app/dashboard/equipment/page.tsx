@@ -46,6 +46,7 @@ const ITEMS_PER_PAGE = 10;
 export default function EquipmentManagement() {
   const equipment = useQuery(api.equipment.getAll);
   const deleteEquipment = useMutation(api.equipment.remove);
+  const staff = useQuery(api.staff.getAll);
 
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -149,6 +150,7 @@ export default function EquipmentManagement() {
                 <TableHead>Type</TableHead>
                 <TableHead>Size</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Assigned To</TableHead>
                 <TableHead>Notes</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -169,6 +171,14 @@ export default function EquipmentManagement() {
                       }>
                         {item.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {item.assignedTo 
+                        ? (() => {
+                            const staffMember = staff?.find(s => s._id === item.assignedTo);
+                            return staffMember ? `${staffMember.firstName} ${staffMember.lastName}` : 'Unknown';
+                          })()
+                        : '-'}
                     </TableCell>
                     <TableCell>{item.notes || '-'}</TableCell>
                     <TableCell>

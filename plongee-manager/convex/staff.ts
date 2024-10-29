@@ -47,3 +47,10 @@ export const update = mutation({
     await ctx.db.patch(id, updateFields);
   },
 });
+
+export const list = query({
+  handler: async (ctx) => {
+    const staff = await ctx.db.query("staff").collect();
+    return staff;
+  },
+});
