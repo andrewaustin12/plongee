@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -19,9 +19,14 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { staffFormSchema, StaffFormValues } from './staffFormSchema';
+import { CertificationSelect } from "@/components/certification-select";
 
-export function NewStaffDialog() {
-  const [open, setOpen] = useState(false);
+interface NewStaffDialogProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function NewStaffDialog({ open, onClose }: NewStaffDialogProps) {
   const addStaffMember = useMutation(api.staff.add);
 
   const form = useForm<StaffFormValues>({
@@ -33,15 +38,18 @@ export function NewStaffDialog() {
       email: "",
       phone: "",
       certLevel: "",
-      isPermanent: true,
+      staffType: "permanent" as const
     },
   });
 
   const onSubmit = async (values: StaffFormValues) => {
     try {
-      await addStaffMember(values);
+      await addStaffMember({
+        ...values,
+        staffType: values.staffType as "permanent" | "freelance"
+      });
       toast.success('New staff member added successfully!');
-      setOpen(false);
+      onClose();
       form.reset();
     } catch (error) {
       console.error('Error adding new staff member:', error);
@@ -50,10 +58,7 @@ export function NewStaffDialog() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Add New Staff Member</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add New Staff Member</DialogTitle>
@@ -132,7 +137,10 @@ export function NewStaffDialog() {
                 <FormItem>
                   <FormLabel>Certification Level</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <CertificationSelect 
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,17 +148,17 @@ export function NewStaffDialog() {
             />
             <FormField
               control={form.control}
-              name="isPermanent"
+              name="staffType"
               render={({ field }) => (
                 <FormItem className="space-y-3">
                   <FormLabel>Staff Type</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={(value) => field.onChange(value === "permanent")}
-                      defaultValue={field.value ? "permanent" : "freelance"}
-                      className="flex flex-col space-y-1"
+                      onValueChange={(value: "permanent" | "freelance") => field.onChange(value)}
+                      defaultValue={field.value}
+                      className="flex flex-row space-x-4"
                     >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormItem className="flex items-center space-x-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="permanent" />
                         </FormControl>
@@ -158,7 +166,7 @@ export function NewStaffDialog() {
                           Permanent
                         </FormLabel>
                       </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormItem className="flex items-center space-x-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="freelance" />
                         </FormControl>

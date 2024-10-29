@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from '@/components/ui/app-sidebar';
@@ -36,8 +37,8 @@ export default function DashboardLayout({
               </BreadcrumbItem>
               {pathSegments.length > 1 && <BreadcrumbSeparator />}
               {pathSegments.slice(1).map((segment, index) => (
-                <>
-                  <BreadcrumbItem key={segment}>
+                <React.Fragment key={segment}>
+                  <BreadcrumbItem>
                     {index === pathSegments.length - 2 ? (
                       <BreadcrumbPage>
                         {segment.split('-').map(word => 
@@ -53,7 +54,7 @@ export default function DashboardLayout({
                     )}
                   </BreadcrumbItem>
                   {index < pathSegments.length - 2 && <BreadcrumbSeparator />}
-                </>
+                </React.Fragment>
               ))}
             </BreadcrumbList>
           </Breadcrumb>

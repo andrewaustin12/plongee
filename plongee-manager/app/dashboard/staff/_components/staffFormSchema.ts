@@ -19,7 +19,7 @@ export const staffFormSchema = z.object({
   certLevel: z.string().min(1, {
     message: "Certification level is required.",
   }),
-  isPermanent: z.boolean(),
+  staffType: z.string(),
 });
 
 export type StaffFormValues = z.infer<typeof staffFormSchema>;

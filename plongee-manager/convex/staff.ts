@@ -1,6 +1,17 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+export type Staff = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  position: string;
+  email: string;
+  phone: string;
+  certLevel: string;
+  staffType: "permanent" | "freelance";
+};
+
 export const add = mutation({
   args: {
     firstName: v.string(),
@@ -9,7 +20,7 @@ export const add = mutation({
     email: v.string(),
     phone: v.string(),
     certLevel: v.string(),
-    isPermanent: v.boolean(),
+    staffType: v.union(v.literal("permanent"), v.literal("freelance")),
   },
   handler: async (ctx, args) => {
     const newStaffId = await ctx.db.insert("staff", args);
@@ -40,7 +51,7 @@ export const update = mutation({
     email: v.string(),
     phone: v.string(),
     certLevel: v.string(),
-    isPermanent: v.boolean(),
+    staffType: v.string(),
   },
   handler: async (ctx, args) => {
     const { id, ...updateFields } = args;

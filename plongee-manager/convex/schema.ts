@@ -9,7 +9,7 @@ export default defineSchema({
     email: v.string(),
     phone: v.string(),
     certLevel: v.string(),
-    isPermanent: v.boolean(),
+    staffType: v.string(),
   }),
   customers: defineTable({
     firstName: v.string(),
