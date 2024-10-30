@@ -198,19 +198,40 @@ export default function Home() {
       {/* Demo Section - Ocean gradient */}
       <section className="py-24 bg-gradient-to-b from-cyan-50 to-blue-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Badge className="mb-4 bg-blue-50 text-blue-700 hover:bg-blue-100" variant="secondary">
-            Platform Demo
-          </Badge>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-6">
-            See how it works
-          </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Watch our 2-minute demo to see how our platform can transform your freediving center operations
-          </p>
-          <Button size="lg" className="h-14 px-8 bg-blue-600 hover:bg-blue-700">
-            <Play className="w-5 h-5 mr-2" />
-            Watch Demo
-          </Button>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Column - Text Content */}
+            <div>
+              <Badge className="mb-4 bg-blue-50 text-blue-700 hover:bg-blue-100" variant="secondary">
+                Platform Demo
+              </Badge>
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-6">
+                See how it works
+              </h2>
+              <p className="text-xl text-gray-600 mb-8">
+                Watch our 2-minute demo to see how our platform can transform your freediving center operations
+              </p>
+              <Button size="lg" className="h-14 px-8 bg-blue-600 hover:bg-blue-700">
+                <Play className="w-5 h-5 mr-2" />
+                Watch Demo
+              </Button>
+            </div>
+
+            {/* Right Column - Video */}
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-xl">
+              <video 
+                className="w-full h-full object-cover"
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                controls={false}
+                preload="auto"
+              >
+                <source src="https://videos.pexels.com/video-files/7252716/7252716-hd_1080_1920_25fps.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
         </div>
       </section>
 
